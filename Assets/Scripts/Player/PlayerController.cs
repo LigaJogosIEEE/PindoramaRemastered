@@ -5,7 +5,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour {
-    //------ Variaveis relativas ao salto do personagem e verificações "se está no chao" -----
+    //------ Variaveis relativas ao salto do personagem e verificações "se está no chao" ------
     [Range(1, 20)]
     public float jumpVelocity = 5f;
     [Range(1, 5)]
@@ -21,7 +21,10 @@ public class PlayerController : MonoBehaviour {
 
     private Vector2 playerSize;
     private Vector2 boxSize;
-    // ----- FIM ------
+
+    //------ Variáveis relativas ao jogador correndo ------
+    [Range(1, 20)]
+    public float movementSpeed = 5f;
 
     private new Rigidbody2D rigidbody2D;
 
@@ -32,7 +35,18 @@ public class PlayerController : MonoBehaviour {
     }
 	
     public void Update() {
+        //Controles
         Controls();
+        //Ações relativas aos modos de jogo disponíveis
+        ProcessGameMode();
+    }
+
+    private void ProcessGameMode() {
+        //Se o modo de jogo é correndo
+        if (GameManager.Get().gameMode == GameManager.GameMode.RUNNING) {
+            //Jogo se configura para correr sem ação do player
+            Run();
+        }
     }
 
     private void Controls() {
@@ -81,5 +95,10 @@ public class PlayerController : MonoBehaviour {
         else {
             rigidbody2D.gravityScale = 1;
         }
+    }
+
+    private void Run() {
+        //Movimenta o jogador para a direita
+        transform.Translate(Vector2.right * Time.deltaTime * movementSpeed);
     }
 }
