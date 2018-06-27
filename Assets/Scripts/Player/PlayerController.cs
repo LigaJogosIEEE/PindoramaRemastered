@@ -5,9 +5,12 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour {
+
+    public bool isAlive = true;
+
     //------ Variaveis relacionadas ao salto do personagem e verificações "se está no chao" ------
     [Range(1, 20)]
-    public float jumpVelocity = 5f;
+    public float jumpVelocity = 6f;
     [Range(1, 5)]
     public float fallMultiplier = 2.5f;
     [Range(1, 5)]
@@ -23,7 +26,7 @@ public class PlayerController : MonoBehaviour {
 
     //------ Variáveis relacionadas ao jogador correndo ------
     [Range(1, 20)]
-    public float movementSpeed = 5f;
+    public float movementSpeed = 6f;
 
     private new Rigidbody2D rigidbody2D;
 
@@ -92,5 +95,26 @@ public class PlayerController : MonoBehaviour {
     private void Run() {
         //Movimenta o jogador para a direita
         transform.Translate(Vector2.right * Time.deltaTime * movementSpeed);
+    }
+
+    public void SetSpeed(float newSpeed) {
+        movementSpeed = newSpeed;
+    }
+
+    /*
+     * Mata o personagem e encerra a fase.
+     */
+    public void Death() {
+        //Verifica se o personagem está vivo.
+        if (isAlive) { 
+            isAlive = false; //Declara a hora da morte.
+            movementSpeed = 0f; //Zera a velocidade, pro personagem não se mover mais pra frente.
+            //"Empurra" o personagem para cima, criando uma animação legalzinha.
+            rigidbody2D.velocity = Vector2.zero;
+            rigidbody2D.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
+            GetComponent<BoxCollider2D>().enabled = false; //Desabilita o colisor pro personagem atravessar o chão.
+            //anim.SetBool("Morreu", true);
+            //Invoke("GameOver", 2f);
+        }
     }
 }
