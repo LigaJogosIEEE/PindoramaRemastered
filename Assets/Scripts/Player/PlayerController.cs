@@ -114,7 +114,15 @@ public class PlayerController : MonoBehaviour {
             rigidbody2D.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
             GetComponent<BoxCollider2D>().enabled = false; //Desabilita o colisor pro personagem atravessar o chão.
             //anim.SetBool("Morreu", true);
-            //Invoke("GameOver", 2f);
+            StartCoroutine(Waiter());
+            
         }
+    }
+
+    IEnumerator Waiter()
+    {
+        //Wait for 4 seconds
+        yield return new WaitForSeconds(1);
+        LevelManager.levelManager.GameOver();
     }
 }
