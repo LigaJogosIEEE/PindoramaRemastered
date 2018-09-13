@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Boss Trigger
+  - Collectable
+  - Platform
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -15,7 +18,7 @@ TagManager:
   - 
   - 
   - Player
-  - 
+  - Ground
   - 
   - 
   - 
@@ -50,4 +53,7 @@ TagManager:
     locked: 0
   - name: Foreground
     uniqueID: 3664904957
+    locked: 0
+  - name: Higherground
+    uniqueID: 3853017011
     locked: 0

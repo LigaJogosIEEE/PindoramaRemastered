@@ -19,10 +19,16 @@ public class PlayerController : MonoBehaviour {
     public float groundedSkin = 0.05f;
     public LayerMask collisionLayer;
 
-    private bool grounded = true;
+    public bool grounded = true;
+    public bool jump = false;
 
     private Vector2 playerSize;
     private Vector2 boxSize;
+
+    private Animator anim;
+
+    public Transform groundCheck;
+
 
     //------ Variáveis relacionadas ao jogador correndo ------
     [Range(1, 20)]
@@ -34,9 +40,19 @@ public class PlayerController : MonoBehaviour {
         rigidbody2D = GetComponent<Rigidbody2D>();
         playerSize = GetComponent<BoxCollider2D>().size;
         boxSize = new Vector2(playerSize.x, groundedSkin);
+        anim = GetComponent<Animator>();
     }
 	
     public void Update() {
+        grounded = Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground")).transform;
+
+        anim.SetBool("Grounded", grounded);
+
+        if (grounded) {
+            anim.SetBool("Jump", false);
+        } else if(isAlive)
+            anim.SetBool("Jump", true);
+
         //Controles
         Controls();
         //Ações relacionadas aos modos de jogo disponíveis
@@ -54,25 +70,38 @@ public class PlayerController : MonoBehaviour {
     private void Controls() {
         //Saltar, acho que comentar isso é demais já
         if (Input.GetButtonDown("Jump") && grounded) {
-           rigidbody2D.AddForce(Vector2.up * jumpVelocity, ForceMode2D.Impulse);
+            anim.SetBool("Jump", true);
+            rigidbody2D.AddForce(Vector2.up * jumpVelocity, ForceMode2D.Impulse);
+            //rigidbody2D.AddForce(Vector2.up * jumpVelocity, ForceMode2D.Impulse);
         }
     }
 
+    public void Jump() {
+        if(grounded)
+            jump = true;
+    }
+
     private void FixedUpdate() {
+        /*if (jump) {
+            anim.SetBool("Jump", true);
+            rigidbody2D.AddForce(Vector2.up * jumpVelocity, ForceMode2D.Impulse);
+            //jump = false;
+        }*/
         //Coisas que envolvem física, pertencem ao physics update
-        JumpAndGrounding();
+        //JumpAndGrounding();
         JumpingOptimizations();
+        
     }
 
     //Método que faz o player saltar e verifica se ele está no chão
     private void JumpAndGrounding() {
         //Se pediu para saltar
-       
             //Calcula e coloca uma caixa em baixo do personagem
-            Vector2 boxCenter = (Vector2)transform.position + Vector2.down * (playerSize.y + boxSize.y) * 0.5f;
+            //Vector2 boxCenter = (Vector2)transform.position + Vector2.down * (playerSize.y + boxSize.y) * 0.5f;
             //Se a caixa tocar em alguma coisa na camada de colisão, digo que neste frame, ele está no chão, pas
-            grounded = Physics2D.OverlapBox(boxCenter, boxSize, 0f, collisionLayer) != null;
-       
+            //grounded = Physics2D.OverlapBox(boxCenter, boxSize, 0f, collisionLayer) != null;
+            //grounded = Physics2D.Linecast(transform.position, groundCheck.position, 1 << LayerMask.NameToLayer("Ground")).transform;
+
     }
 
     private void JumpingOptimizations() {
@@ -108,21 +137,26 @@ public class PlayerController : MonoBehaviour {
         //Verifica se o personagem está vivo.
         if (isAlive) { 
             isAlive = false; //Declara a hora da morte.
+            jump = false;
+            anim.SetBool("Jump", false);
+            anim.SetBool("Dead", true);
             movementSpeed = 0f; //Zera a velocidade, pro personagem não se mover mais pra frente.
             //"Empurra" o personagem para cima, criando uma animação legalzinha.
             rigidbody2D.velocity = Vector2.zero;
             rigidbody2D.AddForce(Vector2.up * 10, ForceMode2D.Impulse);
             GetComponent<BoxCollider2D>().enabled = false; //Desabilita o colisor pro personagem atravessar o chão.
-            //anim.SetBool("Morreu", true);
-            StartCoroutine(Waiter());
-            
+            Invoke("GameOver", 1f);
         }
     }
 
-    IEnumerator Waiter()
+    public void GameOver() {
+        LevelManager.levelManager.GameOver();
+    }
+
+    /*IEnumerator Waiter()
     {
         //Wait for 4 seconds
         yield return new WaitForSeconds(1);
-        LevelManager.levelManager.GameOver();
-    }
+        
+    }*/
 }
